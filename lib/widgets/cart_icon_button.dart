@@ -13,8 +13,13 @@ class CartIconButton extends StatelessWidget {
 
     return IconButton(
       tooltip: 'Cart',
-      onPressed: () => Navigator.of(context)
-          .push(MaterialPageRoute<void>(builder: (_) => const CartScreen())),
+      onPressed: () {
+        // A pending "Added to cart / VIEW CART" SnackBar would otherwise
+        // follow us onto the cart and could push a second CartScreen.
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        Navigator.of(context)
+            .push(MaterialPageRoute<void>(builder: (_) => const CartScreen()));
+      },
       icon: Badge(
         isLabelVisible: count > 0,
         label: Text(count > 99 ? '99+' : '$count'),

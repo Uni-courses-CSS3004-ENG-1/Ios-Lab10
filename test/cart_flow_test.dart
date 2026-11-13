@@ -1,3 +1,4 @@
+import 'package:cloud_product_explorer/screens/cart_screen.dart';
 import 'package:cloud_product_explorer/screens/product_list_screen.dart';
 import 'package:cloud_product_explorer/services/product_service.dart';
 import 'package:cloud_product_explorer/state/cart_controller.dart';
@@ -130,5 +131,20 @@ void main() {
 
     expect(cart.isEmpty, isTrue);
     expect(find.text('Your cart is empty'), findsOneWidget);
+  });
+
+  testWidgets('opening the cart from the icon hides the VIEW CART SnackBar', (
+    tester,
+  ) async {
+    await _openDetail(tester);
+    await tester.tap(find.text('Add to Cart'));
+    await tester.pump();
+    expect(find.text('VIEW CART'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Cart'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('VIEW CART'), findsNothing);
+    expect(find.byType(CartScreen), findsOneWidget);
   });
 }
