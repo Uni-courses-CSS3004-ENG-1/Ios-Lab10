@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../models/product.dart';
 import '../services/product_service.dart';
+
 import '../widgets/error_view.dart';
 import '../widgets/product_tile.dart';
+import 'product_detail_screen.dart';
 
 enum _LoadState { loading, success, error }
 
@@ -77,7 +79,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   void _openDetail(Product product) {
-    // Detail screen is wired up in a follow-up commit.
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProductDetailScreen(product: product),
+      ),
+    );
   }
 
   @override
