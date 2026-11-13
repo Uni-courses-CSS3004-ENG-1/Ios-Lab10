@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../widgets/photo_carousel.dart';
 import '../widgets/rating_stars.dart';
+import '../widgets/share_link_sheet.dart';
 
 /// Master-detail target: large image, category badge, rating, full
 /// description, and a sticky "Add to Cart" bar.
@@ -27,7 +28,16 @@ class ProductDetailScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Product Details')),
+      appBar: AppBar(
+        title: const Text('Product Details'),
+        actions: [
+          IconButton(
+            tooltip: 'Share',
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => showShareLinkSheet(context, product),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
