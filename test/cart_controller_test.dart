@@ -2,11 +2,8 @@ import 'package:cloud_product_explorer/models/product.dart';
 import 'package:cloud_product_explorer/state/cart_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Product _product(int id, double price) => Product.fromJson({
-  'id': id,
-  'title': 'P$id',
-  'price': price,
-});
+Product _product(int id, double price) =>
+    Product.fromJson({'id': id, 'title': 'P$id', 'price': price});
 
 void main() {
   late CartController cart;

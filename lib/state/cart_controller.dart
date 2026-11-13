@@ -85,4 +85,11 @@ class CartScope extends InheritedNotifier<CartController> {
     assert(scope != null, 'No CartScope found above this widget.');
     return scope!.notifier!;
   }
+
+  /// Reads the cart without subscribing. Use in callbacks (onPressed).
+  static CartController read(BuildContext context) {
+    final scope = context.getInheritedWidgetOfExactType<CartScope>();
+    assert(scope != null, 'No CartScope found above this widget.');
+    return scope!.notifier!;
+  }
 }

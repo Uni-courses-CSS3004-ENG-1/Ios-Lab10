@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';
 
+import '../widgets/cart_icon_button.dart';
 import '../widgets/error_view.dart';
 import '../widgets/product_tile.dart';
 import 'product_detail_screen.dart';
@@ -97,7 +98,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cloud Product Explorer')),
+      appBar: AppBar(
+        title: const Text('Cloud Product Explorer'),
+        actions: const [CartIconButton()],
+      ),
       body: switch (_state) {
         _LoadState.loading => const Center(child: CircularProgressIndicator()),
         _LoadState.error => ErrorView(

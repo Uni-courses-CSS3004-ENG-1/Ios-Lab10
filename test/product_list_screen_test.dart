@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_product_explorer/screens/product_list_screen.dart';
 import 'package:cloud_product_explorer/services/product_service.dart';
+import 'package:cloud_product_explorer/state/cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -14,8 +15,10 @@ const _body = '''
   "rating": {"rate": 4.5, "count": 10}}]
 ''';
 
-Widget _app(ProductService service) =>
-    MaterialApp(home: ProductListScreen(service: service));
+Widget _app(ProductService service, [CartController? cart]) => CartScope(
+  controller: cart ?? CartController(),
+  child: MaterialApp(home: ProductListScreen(service: service)),
+);
 
 void main() {
   testWidgets('shows a spinner, then the product feed', (tester) async {
