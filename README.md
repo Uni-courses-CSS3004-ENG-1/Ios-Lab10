@@ -8,7 +8,7 @@ Flutter app that loads products from the live REST API
 ```bash
 flutter pub get
 flutter run
-flutter test   # 15 tests: model, service, widget flows
+flutter test   # 24 tests: model, service, cart, widget flows
 ```
 
 ## Project structure
@@ -17,14 +17,17 @@ flutter test   # 15 tests: model, service, widget flows
 lib/
 ├── main.dart                      # MaterialApp + theme
 ├── models/product.dart            # Product + type-safe fromJson, deepLink
+├── state/cart_controller.dart     # CartController (ChangeNotifier) + CartScope
 ├── services/product_service.dart  # http.get, 10 s timeout, status codes
 ├── screens/
 │   ├── product_list_screen.dart   # Loading / Success / Error + pull-to-refresh
-│   └── product_detail_screen.dart # Hero, carousel, badge, sticky Add to Cart
+│   ├── product_detail_screen.dart # Hero, carousel, badge, sticky Add to Cart
+│   └── cart_screen.dart           # Cart lines, qty stepper, delete + Undo, Clear All, total
 └── widgets/
     ├── photo_carousel.dart        # PageView.builder, "1 / 3", animated dots
     ├── share_link_sheet.dart      # narxoz://store/product/{id} + copy
     ├── error_view.dart            # Offline screen + Retry Connection
+    ├── cart_icon_button.dart      # AppBar cart icon with live counter badge
     ├── product_tile.dart, rating_stars.dart, network_image_box.dart
 ```
 
@@ -36,6 +39,18 @@ lib/
 | 2.5 | HTTP & 3 states | `ProductService.fetchProducts()` calls `.timeout(10 s)` inside `try/catch`. It handles **200 / 404 / 5xx** and turns `SocketException`, `TimeoutException`, `ClientException` and `FormatException` into readable messages. The screen moves between `loading → success → error`. `RefreshIndicator` reloads the list. |
 | 3.0 | Detail & carousel | `Hero(tag: 'product_image_${product.id}')` on the thumbnail and on carousel page 1. `PageView.builder` shows the photos with a `1 / 3` counter and `AnimatedContainer` dots. The detail screen also has a category badge and the full description. The **Add to Cart** button sits in `bottomNavigationBar`, so it stays visible while you scroll. |
 | 2.0 | Share deep link | The share icon opens a `showModalBottomSheet` with `narxoz://store/product/{id}`. The copy button uses `Clipboard.setData`. |
+
+## Extra: shopping cart
+
+The rubric doesn't require a cart. This extra feature makes the **Add to Cart** button do something.
+
+- **Cart icon with counter.** The icon is in the top bar of the feed and of the detail screen. Its number badge updates as soon as you add something.
+- **Cart screen.**
+  - Each product has **−** and **+** buttons to change the quantity.
+  - To delete a product, tap the 🗑 button or swipe it to the left. A message appears with an **UNDO** button.
+  - **Clear All** asks for confirmation first.
+  - The total price is shown at the bottom.
+- **How the state works.** `CartController extends ChangeNotifier` is shared through `CartScope` (an `InheritedNotifier`) placed above `MaterialApp`. Every screen gets the same cart, and widgets that call `CartScope.of(context)` rebuild when it changes. Callbacks use `CartScope.read(context)`, so they don't trigger extra rebuilds. No extra package is needed.
 
 ## Live defense: Airplane mode test
 
