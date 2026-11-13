@@ -40,6 +40,26 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   Future<void> _loadProducts() async {
     setState(() => _state = _LoadState.loading);
+    await _fetch();
+  }
+
+  /// Pull-to-refresh: keep the current list on screen while reloading.
+  /// If the refresh fails but we already have data, show a SnackBar
+  /// instead of throwing the user onto the error screen.
+  Future<void> _refresh() async {
+    try {
+      final products = await _service.fetchProducts();
+      if (!mounted) return;
+      setState(() => _products = products);
+    } on ProductFetchException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  Future<void> _fetch() async {
     try {
       final products = await _service.fetchProducts();
       if (!mounted) return;
@@ -70,16 +90,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
           message: _errorMessage,
           onRetry: _loadProducts,
         ),
-        _LoadState.success => ListView.separated(
-          itemCount: _products.length,
-          separatorBuilder: (_, _) => const Divider(height: 1, indent: 112),
-          itemBuilder: (context, index) {
-            final product = _products[index];
-            return ProductTile(
-              product: product,
-              onTap: () => _openDetail(product),
-            );
-          },
+        _LoadState.success => RefreshIndicator(
+          onRefresh: _refresh,
+          child: ListView.separated(
+            // Always scrollable so pull-to-refresh works on short lists.
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemCount: _products.length,
+            separatorBuilder: (_, _) => const Divider(height: 1, indent: 112),
+            itemBuilder: (context, index) {
+              final product = _products[index];
+              return ProductTile(
+                product: product,
+                onTap: () => _openDetail(product),
+              );
+            },
+          ),
         ),
       },
     );
