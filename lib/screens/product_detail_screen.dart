@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/product.dart';
-import '../widgets/network_image_box.dart';
+import '../widgets/photo_carousel.dart';
 import '../widgets/rating_stars.dart';
 
 /// Master-detail target: large image, category badge, rating, full
@@ -31,15 +31,9 @@ class ProductDetailScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
-          Hero(
-            tag: 'product_image_${product.id}',
-            child: SizedBox(
-              height: 320,
-              child: NetworkImageBox(
-                url: product.imageUrl,
-                padding: const EdgeInsets.all(24),
-              ),
-            ),
+          PhotoCarousel(
+            imageUrls: product.galleryImages,
+            heroTag: 'product_image_${product.id}',
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
