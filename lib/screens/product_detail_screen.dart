@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../models/product.dart';
+import '../state/cart_controller.dart';
+import '../widgets/cart_icon_button.dart';
 import '../widgets/photo_carousel.dart';
+import 'cart_screen.dart';
 import '../widgets/rating_stars.dart';
 import '../widgets/share_link_sheet.dart';
 
@@ -13,12 +16,23 @@ class ProductDetailScreen extends StatelessWidget {
   const ProductDetailScreen({super.key, required this.product});
 
   void _addToCart(BuildContext context) {
+    final cart = CartScope.read(context)..add(product);
+    // Captured now: the SnackBar may outlive this screen.
+    final navigator = Navigator.of(context);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('"${product.title}" added to cart'),
+          content: Text(
+            'Added to cart (${cart.quantityOf(product.id)} in cart)',
+          ),
           behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'VIEW CART',
+            onPressed: () => navigator.push(
+              MaterialPageRoute<void>(builder: (_) => const CartScreen()),
+            ),
+          ),
         ),
       );
   }
@@ -36,6 +50,7 @@ class ProductDetailScreen extends StatelessWidget {
             icon: const Icon(Icons.share_outlined),
             onPressed: () => showShareLinkSheet(context, product),
           ),
+          const CartIconButton(),
         ],
       ),
       body: ListView(
