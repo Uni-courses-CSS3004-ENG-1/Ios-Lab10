@@ -26,11 +26,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
   _LoadState _state = _LoadState.loading;
   List<Product> _products = const [];
   String _errorMessage = '';
+  bool _isFetching = false;
 
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    // _state already starts as loading, so fetch directly.
+    _fetch();
   }
 
   @override
@@ -40,7 +42,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.dispose();
   }
 
+  /// Retry Connection: back to the spinner and fetch again.
+  /// Ignored while a request is already in flight.
   Future<void> _loadProducts() async {
+    if (_isFetching) return;
     setState(() => _state = _LoadState.loading);
     await _fetch();
   }
@@ -62,6 +67,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Future<void> _fetch() async {
+    _isFetching = true;
     try {
       final products = await _service.fetchProducts();
       if (!mounted) return;
@@ -75,6 +81,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
         _errorMessage = e.message;
         _state = _LoadState.error;
       });
+    } finally {
+      _isFetching = false;
     }
   }
 
@@ -95,6 +103,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
         _LoadState.error => ErrorView(
           message: _errorMessage,
           onRetry: _loadProducts,
+        ),
+        _LoadState.success when _products.isEmpty => RefreshIndicator(
+          onRefresh: _refresh,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: const [
+              SizedBox(height: 160),
+              Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey),
+              SizedBox(height: 12),
+              Center(child: Text('No products yet. Pull down to refresh.')),
+            ],
+          ),
         ),
         _LoadState.success => RefreshIndicator(
           onRefresh: _refresh,
